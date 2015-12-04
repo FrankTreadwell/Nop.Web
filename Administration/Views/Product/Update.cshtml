@@ -1,0 +1,340 @@
+﻿@model ProductModel
+@Html.ValidationSummary(false)
+@Html.HiddenFor(model => model.Id)
+<script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.min.js"></script>
+<style>
+    .adminData > input,select,textarea {
+        width: 300px !important;
+    }
+
+    .adminData {
+        padding-left: 10px !important;
+    }
+
+    .adminTitle {
+        text-align:left;
+    }
+
+    .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+        border-top: none;
+    }
+</style>
+<div id="product-edit" class="admin-editbox">
+    <div id="productEditContainer">
+        <table class="adminContent">
+            <tr>
+                <td class="adminTitle">
+                    <label for="name">product name</label>
+                </td>
+                <td class="adminData">
+                    @Html.EditorFor(model => model.Name)
+                    @Html.ValidationMessageFor(model => model.Name)
+                </td>
+            </tr>
+            <tr>
+                <td class="adminTitle">
+                    <label for="photoview" name="photoview">photos</label>
+                </td>
+                <td class="adminData">
+                    @Html.Partial("_CreateOrUpdate.PictureUpload", Model)
+                </td>
+            </tr>
+            <tr>
+                <td class="adminTitle">
+                    <label for="FullDescription">product info</label>
+                </td>
+                <td class="adminData">
+                    @Html.TextAreaFor(model => model.FullDescription, new { style = "Width: 250px; Height: 150px;" })
+                    @Html.ValidationMessageFor(model => model.FullDescription)
+                </td>
+            </tr>
+            <tr>
+                <td class="adminTitle">
+                    <label for="Categories" name="Categories">categories</label>
+                </td>
+                <td class="adminData">
+                    Custom Category View goes here
+                </td>
+            </tr>
+            <tr>
+                <td class="adminTitle">
+                    <label for="ProductTags">product tags</label>
+                </td>
+                <td class="adminData">
+                    @Html.EditorFor(model => model.ProductTags)
+                    @Html.ValidationMessageFor(model => model.ProductTags)
+                </td>
+            </tr>
+            <tr>
+                <td class="adminTitle">
+                    <label for="Quantity" name="Quantity">quantity</label>
+                </td>
+                <td class="adminData">
+                    @Html.EditorFor(model => model.StockQuantity)
+                    @Html.ValidationMessageFor(model => model.StockQuantity)
+                </td>
+            </tr>
+            <tr>
+                <td class="adminTitle">
+                    <label for="Price">price</label>
+                </td>
+                <td class="adminData">
+                    $@Html.EditorFor(model => model.Price, "Currency")
+                    @Html.ValidationMessageFor(model => model.Price)
+                </td>
+            </tr>
+            <tr>
+                <td class="adminTitle">
+                    <label for="variants">variants</label>
+                </td>
+                <td class="adminData">
+                    <button id="addVariantBTN" class="k-button">Add Variant</button>
+
+                    <div id="variantHolder" class="container">
+
+                    </div>
+                    <input type="hidden" id="variantTransfer" name="variantTransfer" />
+                </td>
+            </tr>
+            <tr>
+                <td class="adminTitle">
+                   <label for="AdditionalShippingCharge">additional shipping</label>
+                </td>
+                <td class="adminData">
+                    $@Html.EditorFor(model => model.AdditionalShippingCharge, "Currency")
+                    @Html.ValidationMessageFor(model => model.AdditionalShippingCharge)
+                </td>
+            </tr>
+
+        </table>
+    </div>
+
+</div>
+
+
+@*save selected tab index*@
+<input type="hidden" id="selected-tab-index" name="selected-tab-index" value="@(GetSelectedTabIndex())">
+
+@helper TabInfo()
+{
+    @Html.Partial("_CreateOrUpdate.Info", Model)
+}
+@helper TabSeo()
+{
+    @Html.Partial("_CreateOrUpdate.SEO", Model)
+}
+@helper TabCategories()
+{
+    @Html.Partial("_CreateOrUpdate.Categories", Model)
+}
+@helper TabManufacturers()
+{
+    @Html.Partial("_CreateOrUpdate.Manufacturers", Model)
+}
+@helper TabPictures()
+{
+    @Html.Partial("_CreateOrUpdate.Pictures", Model)
+}
+@helper TabSpecificationAttributes()
+{
+    @Html.Partial("_CreateOrUpdate.SpecificationAttributes", Model)
+}
+@helper TabAcl()
+{
+    @Html.Partial("_CreateOrUpdate.Acl", Model)
+}
+@helper TabStores()
+{
+    @Html.Partial("_CreateOrUpdate.Stores", Model)
+}
+
+@helper TabTierPrices()
+{
+    @Html.Partial("_CreateOrUpdate.TierPrices", Model)
+}
+@helper TabProductAttributes()
+{
+    @Html.Partial("_CreateOrUpdate.ProductAttributes", Model)
+}
+@helper TabDiscounts()
+{
+    @Html.Partial("_CreateOrUpdate.Discounts", Model)
+}
+@helper TabRelatedProducts()
+{
+    @Html.Partial("_CreateOrUpdate.RelatedProducts", Model)
+}
+@helper TabCrossSells()
+{
+    @Html.Partial("_CreateOrUpdate.CrossSells", Model)
+}
+@helper TabAssociatedProducts()
+{
+    @Html.Partial("_CreateOrUpdate.AssociatedProducts", Model)
+}
+@helper TabPurchasedWithOrders()
+{
+    @Html.Partial("_CreateOrUpdate.PurchasedWithOrders", Model)
+}
+
+<script id="variantTemplate" type="text/x-handlebars-template">
+    <div class="variantHolder">
+        <a href="#"><img src="{{imageSource}}" /></a>
+    </div>
+</script>
+
+<div id="addVariantDialog" style="display: none;" class="form-horizontal">
+    <table class="table">
+        <tr>
+            <td class="adminTitle"><label>attributes</label></td>
+            <td>
+                <table id="combinationTable" class="table" style="display:none;">
+                    <thead>
+                        <tr>
+                            <th>attribute</th>
+                            <th>value</th>
+                            <th>text prompt</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="variantCombinationContainer"></tbody>
+                </table>
+
+                <button id="addVariantCombination" class="k-button" style="width: 78px;height:25px;">Add </button>
+            </td>
+        </tr>
+        <tr id="variantPictures">
+            <td class="adminTitle">
+                <label for="photoview" name="photoview">photos</label>
+            </td>
+            <td>
+                @Html.Partial("_CreateOrUpdate.VariantPictures", Model)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle"><label>price adjustment</label></td>
+            <td><input type="text" id="variantPriceAdjustment" /></td>
+        </tr>
+        <tr>
+            <td class="adminTitle"><label>quantity</label></td>
+            <td class=""><input type="text" id="variantQuantity" /></td>
+        </tr>
+    </table>
+    <button class="k-button pull-right" id="saveVariantBTN">Save</button>
+
+</div>
+
+<script id="variantCombination" type="text/x-handlebars-template">
+    <tr>
+        <td>
+            <select id="variantAttribute_{{combinationCount}}" class="variantAttribute">
+                {{#each attributes}}
+                <option>{{this}}</option>
+                {{/each}}
+            </select>
+        </td>
+        <td>
+            <input type="text" id="variantValue_{{combinationCount}}" class="variantValue" />
+        </td>
+        <td><input type="text" id="variantTextPrompt_{{combinationCount}}" class="variantTextPrompt" /></td>
+        <td>
+            <a class="removeCombination"><span class="glyphicon glyphicon-remove"></span></a>
+        </td>
+    </tr>
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var window = $('#addVariantDialog');
+        combinationCounter = 0;
+        variantTransferObjects = [];
+
+        $('#addVariantBTN').on("click", function (e) {
+            e.preventDefault();
+            attributeList = [];
+            combinationCounter = 0;
+            $('#variantCombinationContainer').html("");
+            $('#variantPriceAdjustment').val("");
+            $('#variantQuantity').val("");
+            $('#variantPictures').find('a[id^="picture_"]').remove();
+            $.ajax({
+                type: "POST",
+                url: "/ProductAttribute/GetAllAttributes",
+                contentType: "application/json; charset=utf-8",
+                //data: JSON.stringify(dataToSend),
+                success: function (msg, status) {
+                    attributeList = [];
+                    for (i = 0; i < msg.length; i++) {
+                        attributeList.push(msg[i].Name);
+                    }
+                    window.data("kendoWindow").open();
+                }
+            });
+
+
+        });
+
+        $('#addVariantCombination').on("click", function (e) {
+            $('#combinationTable').toggle(true);
+            var template = Handlebars.compile($('#variantCombination').html());
+            $('#variantCombinationContainer').append(template({ combinationCount: combinationCounter, attributes: attributeList }));
+            combinationCounter++;
+            $('.removeCombination').on("click", function (e) {
+                e.preventDefault();
+                $(e.currentTarget).parent().parent().remove();
+                if ($('#variantCombinationContainer').find('tr').length == 0) {
+                    $('#combinationTable').toggle(false);
+                }
+            })
+        });
+
+        if (!window.data("kendoWindow")) {
+            window.kendoWindow({
+                width: "900px",
+                title: "Add Product Variant",
+                actions: [
+                    "Close"
+                ],
+                position: {
+                    top: 100,
+                    left: 200
+                },
+                modal: true
+            });
+        }
+
+
+        $('#saveVariantBTN').on("click", function (e) {
+            var variantDTO = new Object();
+
+            variantDTO.combinations = [];
+
+            $('.variantAttribute').each(function () {
+                variantDTO.combinations.push(
+                    {
+                        attribute: $(this).find('option:selected').text(),
+                        value: $($(this)).parent().parent().find('.variantValue').val(),
+                        textPrompt: $($(this)).parent().parent().find('.variantTextPrompt').val()
+                    });
+            });
+
+            variantDTO.priceAdjustment = $('#variantPriceAdjustment').val();
+            variantDTO.quantity = $('#variantQuantity').val();
+
+            $('.adminContent').find('div[id$="image"]').append($('#variantPictures').find('a[id^="picture_"]'));
+           // $('#adminContent').find('div[id^="picture"]').append("<p>Hello!</p>");
+
+            variantTransferObjects.push(variantDTO);
+            window.data("kendoWindow").close();
+
+        })
+
+
+        $('#product-form').submit(function (e) {
+            $('#variantTransfer').val(JSON.stringify(variantTransferObjects));
+        });
+
+
+
+    });
+</script>

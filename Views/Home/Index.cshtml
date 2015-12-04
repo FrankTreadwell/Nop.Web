@@ -1,0 +1,48 @@
+﻿@{
+    Layout = "~/Views/Shared/_ColumnsThree.cshtml";
+}
+<div class="page home-page">
+    <div class="page-body">
+        @Html.Widget("home_page_top")
+        @*@Html.Action("TopicBlock", "Topic", new { systemName = "HomePageText" })*@
+        @*@Html.Action("HomepageCategories", "Catalog")*@
+        @*@Html.Action("HomepageProducts", "Product")*@
+        @Html.Action("HomepageBestSellers", "Product")
+        @*@Html.Action("HomePageNews", "News")*@
+        @Html.Action("HomePagePolls", "Poll")
+        @Html.Widget("home_page_bottom")
+    </div>
+        <div class="col-xs-12 herolinksection">
+            <div class="col-xs-4">
+                
+                    <div class="herolinkcontainer">
+                        <div class="innerblackbox">
+                        <a href="#">follow our blog</a>
+                         </div>
+                    </div>
+               
+            </div>
+            <div class="col-xs-4">
+                
+                <div class="herolinkcontainer">
+                    <div class="innerblackbox">
+                    <a href="#">like us on facebook</a>
+                     </div>
+                </div>
+            </div>
+            <div class="col-xs-4">
+                <div class="herolinkcontainer">
+                    <div class="innerblackbox">
+                    <a href="#">#sewbie on instagram</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+
+<script type="text/javascript">
+    var msnry = new Masonry($('#cont')[0],{
+        columnWidth: 100,
+        itemSelector: '.itemm'
+    });
+</script>

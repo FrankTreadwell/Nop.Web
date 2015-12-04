@@ -1,0 +1,6 @@
+@model Decimal
+@Html.TextBox(
+    "", 
+    string.Format("{0:F2}", ViewData.Model),
+    new { @class = "currency-editor" }
+)

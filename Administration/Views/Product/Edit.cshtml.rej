@@ -1,0 +1,10 @@
+diff a/Presentation/Nop.Web/Administration/Views/Product/Edit.cshtml b/Presentation/Nop.Web/Administration/Views/Product/Edit.cshtml	(rejected hunks)
+@@ -18,7 +18,7 @@
+             <span id="product-delete" class="k-button">@T("Admin.Common.Delete")</span>
+         </div>
+     </div>
+-    @Html.Partial("_CreateOrUpdate", Model)
++    @Html.Partial("Update", Model)
+ }
+ @Html.DeleteConfirmation("product-delete")
+ 

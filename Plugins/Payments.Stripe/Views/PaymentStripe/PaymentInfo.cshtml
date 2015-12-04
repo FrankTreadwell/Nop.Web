@@ -1,0 +1,117 @@
+﻿@{
+    Layout = "";
+}
+@model Nop.Plugin.Payments.Stripe.Models.PaymentInfoModel
+@using Nop.Web.Framework;
+<script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        //$('.payment-info-next-step-button').hide();
+
+
+        $('#cc-submit').click(function (e) {
+            e.preventDefault();
+
+            Stripe.setPublishableKey('pk_test_ANmgjp4VSLOJOXAmWo9JLZ7s');
+
+
+            Stripe.card.createToken({
+                name: $('#CardholderName').val(),
+                number: $('#CardNumber').val(),
+                cvc: $('#CardCode').val(),
+                exp_month: $('#ExpireMonth').val(),
+                exp_year: $('#ExpireYear').val(),
+                address_zip: $('#ex-postal-code').val()
+            }, handleResponse);
+        });
+    });
+
+    function handleResponse(status, response) {
+
+        var $form = $('#payment-form');
+
+        if (response.error) {
+            // Show the errors on the form
+            $form.find('.payment-errors').text(response.error.message);
+            $form.find('button').prop('disabled', false);
+        } else {
+            //success logic
+            //var fundingInstrument = response.cards != null ? response.cards[0] : response.bank_accounts[0];
+            var postTarget = "http://localhost/checkout/marketplacepayment";
+            // Call your backend
+            jQuery.post(postTarget, {
+                card_token: response.id, nextstep: 'Next'
+            }, function (r) {
+                // Check your backend response
+                switch (r.status) {
+                    case 201:
+                        //TODO: CHECK for errors
+
+                        //TODO: If no errors, redirect to Confirm
+                        window.location.href = r.redirectURL;
+                        //TODO: Else, notify user somehow.
+                        break;
+                    case 400:
+                    case 402:
+                    case 404:
+                    case 500:
+                    default:
+                        break;
+                }
+            });
+        } 
+    }
+</script>
+<table width="100%" cellspacing="2" cellpadding="1" border="0">
+    <tr>
+        <td>
+            @Html.NopLabelFor(model => model.CreditCardTypes, false):
+        </td>
+        <td>
+            @Html.DropDownListFor(model => model.CreditCardType, Model.CreditCardTypes, new { @class = "dropdownlists" })
+        </td>
+    </tr>
+    <tr>
+        <td>
+            @Html.NopLabelFor(model => model.CardholderName, false):
+        </td>
+        <td>
+            @Html.TextBoxFor(model => model.CardholderName, new { style = "Width: 165px;", autocomplete = "off" })
+            @Html.ValidationMessageFor(model => model.CardholderName)
+        </td>
+    </tr>
+    <tr>
+        <td>
+            @Html.NopLabelFor(model => model.CardNumber, false):
+        </td>
+        <td>
+            @Html.TextBoxFor(model => model.CardNumber, new { style = "Width: 165px;", autocomplete = "off", maxlength = 22 })
+            @Html.ValidationMessageFor(model => model.CardNumber)
+        </td>
+    </tr>
+    <tr>
+        <td>
+            @Html.NopLabelFor(model => model.ExpireMonth, false):
+        </td>
+        <td>
+            @Html.DropDownListFor(model => model.ExpireMonth, Model.ExpireMonths)
+            /
+            @Html.DropDownListFor(model => model.ExpireYear, Model.ExpireYears)
+        </td>
+    </tr>
+    <tr>
+        <td>
+            @Html.NopLabelFor(model => model.CardCode, false):
+        </td>
+        <td>
+            @Html.TextBoxFor(model => model.CardCode, new { style = "Width: 60px;", autocomplete = "off", maxlength = 4 })
+            @Html.ValidationMessageFor(model => model.CardCode)
+        </td>
+    </tr>
+    <tr>
+        <td>@Html.HiddenFor(model => model.CardURL, Model.CardURL)</td>
+    </tr>
+    <tr>
+        <td><input type="button" id="cc-submit" value="next" class="button-1" /></td>
+    </tr>
+</table>

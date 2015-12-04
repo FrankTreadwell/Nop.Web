@@ -1,0 +1,113 @@
+﻿@{
+    Layout = "";
+}
+@model Nop.Plugin.Payments.BraintreeMarketplace.Models.PaymentInfoModel
+@using Nop.Web.Framework;
+<script src="https://js.braintreegateway.com/v2/braintree.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        //$('.payment-info-next-step-button').hide();
+
+
+        $('#cc-submit').click(function (e) {
+            e.preventDefault();
+
+            var client = new braintree.api.Client({ clientToken: "eyJ2ZXJzaW9uIjoyLCJhdXRob3JpemF0aW9uRmluZ2VycHJpbnQiOiJhNWMzNDMwZmFhNGQ0MTY2NWU0MGI1MTBhNzk5Mjc5ZjA0ZDgwNWQ5NmUwODI2OTcxNmM0OThjMWM5MmNkMjUwfGNyZWF0ZWRfYXQ9MjAxNS0wNS0wM1QwNTo0ODo1Mi4xOTU1NjQ3MTcrMDAwMFx1MDAyNm1lcmNoYW50X2lkPTM2MmNrOHFuNGcyOW4zZjRcdTAwMjZwdWJsaWNfa2V5PTJocjIzeDhmamQ2NDVqOGciLCJjb25maWdVcmwiOiJodHRwczovL2FwaS5zYW5kYm94LmJyYWludHJlZWdhdGV3YXkuY29tOjQ0My9tZXJjaGFudHMvMzYyY2s4cW40ZzI5bjNmNC9jbGllbnRfYXBpL3YxL2NvbmZpZ3VyYXRpb24iLCJjaGFsbGVuZ2VzIjpbXSwiZW52aXJvbm1lbnQiOiJzYW5kYm94IiwiY2xpZW50QXBpVXJsIjoiaHR0cHM6Ly9hcGkuc2FuZGJveC5icmFpbnRyZWVnYXRld2F5LmNvbTo0NDMvbWVyY2hhbnRzLzM2MmNrOHFuNGcyOW4zZjQvY2xpZW50X2FwaSIsImFzc2V0c1VybCI6Imh0dHBzOi8vYXNzZXRzLmJyYWludHJlZWdhdGV3YXkuY29tIiwiYXV0aFVybCI6Imh0dHBzOi8vYXV0aC52ZW5tby5zYW5kYm94LmJyYWludHJlZWdhdGV3YXkuY29tIiwiYW5hbHl0aWNzIjp7InVybCI6Imh0dHBzOi8vY2xpZW50LWFuYWx5dGljcy5zYW5kYm94LmJyYWludHJlZWdhdGV3YXkuY29tIn0sInRocmVlRFNlY3VyZUVuYWJsZWQiOnRydWUsInRocmVlRFNlY3VyZSI6eyJsb29rdXBVcmwiOiJodHRwczovL2FwaS5zYW5kYm94LmJyYWludHJlZWdhdGV3YXkuY29tOjQ0My9tZXJjaGFudHMvMzYyY2s4cW40ZzI5bjNmNC90aHJlZV9kX3NlY3VyZS9sb29rdXAifSwicGF5cGFsRW5hYmxlZCI6dHJ1ZSwicGF5cGFsIjp7ImRpc3BsYXlOYW1lIjoiU2V3YmllIExMQyIsImNsaWVudElkIjpudWxsLCJwcml2YWN5VXJsIjoiaHR0cDovL2V4YW1wbGUuY29tL3BwIiwidXNlckFncmVlbWVudFVybCI6Imh0dHA6Ly9leGFtcGxlLmNvbS90b3MiLCJiYXNlVXJsIjoiaHR0cHM6Ly9hc3NldHMuYnJhaW50cmVlZ2F0ZXdheS5jb20iLCJhc3NldHNVcmwiOiJodHRwczovL2NoZWNrb3V0LnBheXBhbC5jb20iLCJkaXJlY3RCYXNlVXJsIjpudWxsLCJhbGxvd0h0dHAiOnRydWUsImVudmlyb25tZW50Tm9OZXR3b3JrIjp0cnVlLCJlbnZpcm9ubWVudCI6Im9mZmxpbmUiLCJ1bnZldHRlZE1lcmNoYW50IjpmYWxzZSwiYnJhaW50cmVlQ2xpZW50SWQiOiJtYXN0ZXJjbGllbnQiLCJtZXJjaGFudEFjY291bnRJZCI6ImszYm5wNXNyd3RxeTVjNngiLCJjdXJyZW5jeUlzb0NvZGUiOiJVU0QifSwiY29pbmJhc2VFbmFibGVkIjpmYWxzZSwibWVyY2hhbnRJZCI6IjM2MmNrOHFuNGcyOW4zZjQiLCJ2ZW5tbyI6Im9mZiJ9" });
+            client.tokenizeCard({
+                number: "4111111111111111",
+                expirationDate: "10/20" },
+                handleResponse
+            );
+        });
+    });
+
+    function handleResponse(err, nonce) {
+
+        var $form = $('#payment-form');
+
+        if (err) {
+            // Show the errors on the form
+            $form.find('.payment-errors').text(err);
+            $form.find('button').prop('disabled', false);
+        } else {
+            //success logic
+            //var fundingInstrument = response.cards != null ? response.cards[0] : response.bank_accounts[0];
+            var postTarget = "http://localhost/checkout/marketplacepayment";
+            // Call your backend
+            jQuery.post(postTarget, {
+                card_token: nonce, nextstep: 'Next'
+            }, function (r) {
+                // Check your backend response
+                switch (r.status) {
+                    case 201:
+                        //TODO: CHECK for errors
+
+                        //TODO: If no errors, redirect to Confirm
+                        window.location.href = r.redirectURL;
+                        //TODO: Else, notify user somehow.
+                        break;
+                    case 400:
+                    case 402:
+                    case 404:
+                    case 500:
+                    default:
+                        break;
+                }
+            });
+        } 
+    }
+</script>
+<table width="100%" cellspacing="2" cellpadding="1" border="0">
+    <tr>
+        <td>
+            @Html.NopLabelFor(model => model.CreditCardTypes, false):
+        </td>
+        <td>
+            @Html.DropDownListFor(model => model.CreditCardType, Model.CreditCardTypes, new { @class = "dropdownlists" })
+        </td>
+    </tr>
+    <tr>
+        <td>
+            @Html.NopLabelFor(model => model.CardholderName, false):
+        </td>
+        <td>
+            @Html.TextBoxFor(model => model.CardholderName, new { style = "Width: 165px;", autocomplete = "off" })
+            @Html.ValidationMessageFor(model => model.CardholderName)
+        </td>
+    </tr>
+    <tr>
+        <td>
+            @Html.NopLabelFor(model => model.CardNumber, false):
+        </td>
+        <td>
+            @Html.TextBoxFor(model => model.CardNumber, new { style = "Width: 165px;", autocomplete = "off", maxlength = 22 })
+            @Html.ValidationMessageFor(model => model.CardNumber)
+        </td>
+    </tr>
+    <tr>
+        <td>
+            @Html.NopLabelFor(model => model.ExpireMonth, false):
+        </td>
+        <td>
+            @Html.DropDownListFor(model => model.ExpireMonth, Model.ExpireMonths)
+            /
+            @Html.DropDownListFor(model => model.ExpireYear, Model.ExpireYears)
+        </td>
+    </tr>
+    <tr>
+        <td>
+            @Html.NopLabelFor(model => model.CardCode, false):
+        </td>
+        <td>
+            @Html.TextBoxFor(model => model.CardCode, new { style = "Width: 60px;", autocomplete = "off", maxlength = 4 })
+            @Html.ValidationMessageFor(model => model.CardCode)
+        </td>
+    </tr>
+    <tr>
+        <td>@Html.HiddenFor(model => model.CardURL, Model.CardURL)</td>
+    </tr>
+    <tr>
+        <td><input type="button" id="cc-submit" value="next" class="button-1" /></td>
+    </tr>
+    <input type="hidden" id="hdnClientToken" value=""/>
+</table>

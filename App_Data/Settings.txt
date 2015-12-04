@@ -1,0 +1,2 @@
+DataProvider: sqlserver
+DataConnectionString: Data Source=c6br02jawb.database.windows.net;Initial Catalog=convertedsewbie;Integrated Security=False;Persist Security Info=False;User ID=swb_adm;Password=SewbieG0Sewbie

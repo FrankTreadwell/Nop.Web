@@ -1,0 +1,134 @@
+﻿@model ProductModel
+@using Nop.Core;
+@using Nop.Web.Framework.UI;
+@{
+    //register CSS and JS
+    Html.AddCssFileParts("~/Scripts/fineuploader/fineuploader-4.2.2.min.css");
+    Html.AddScriptParts("~/Scripts/fineuploader/jquery.fineuploader-4.2.2.min.js");
+
+    //other variables
+    var random = CommonHelper.GenerateRandomInteger();
+    var clientId = "picture" + random;
+    var pictureService = EngineContext.Current.Resolve<Nop.Services.Media.IPictureService>
+    ();
+    var productService = EngineContext.Current.Resolve<Nop.Services.Catalog.IProductService>
+        ();
+        var pictures = productService.GetProductPicturesByProductId(Model.Id);
+        var productPicturesModel = pictures
+        .Select(x =>
+        {
+        return new ProductModel.ProductPictureModel()
+        {
+        Id = x.Id,
+        ProductId = x.ProductId,
+        PictureId = x.PictureId,
+        PictureUrl = pictureService.GetPictureUrl(x.PictureId,100),
+        DisplayOrder = x.DisplayOrder
+        };
+        })
+        .ToList();
+        var PictureIDList = String.Join(",", pictures.Select(x => x.PictureId.ToString()).ToArray());
+        }
+        <style>
+            .qq-upload-button-selector, .qq-upload-button {
+                display: block;
+                width: 79px;
+                padding: 2px 7px 7px 2px;
+                height: 25px;
+                text-align: center;
+                background: #FFF;
+            }
+        </style>
+        <div id="@(clientId + " image")">
+            <table>
+                <tr>
+                    <text>
+                        @foreach (ProductModel.ProductPictureModel picture in productPicturesModel) {
+                        <td style="background-color:#333;border: 3px solid #FFF;">
+                            <a href="" id="@("picture_" + picture.PictureId)"><img src="@picture.PictureUrl" /></a>
+                        </td>
+                        }
+                    </text>
+                </tr>
+            </table>
+        </div>
+
+        @*fine uploader container*@
+        <input type="hidden" id="pictureIDs" name="pictureIDs" value="@PictureIDList" />
+        <div id="@clientId">
+            <noscript>
+                <p>
+                    Please enable JavaScript to use file uploader.
+                </p>
+                <!-- or put a simple form for upload here -->
+            </noscript>
+        </div>
+        @*fine uploader template (keep it synchronized to \Content\fineuploader\templates\default.html)*@
+        <script type="text/template" id="@(clientId)-qq-template">
+            <div class="qq-uploader-selector qq-uploader">
+                <div class="qq-upload-drop-area-selector qq-upload-drop-area" qq-hide-dropzone>
+                    <span>@T("Common.FileUploader.DropFiles")</span>
+                </div>
+                <br />
+                <div class="qq-upload-button-selector qq-upload-button k-button">
+                    <div>Add Picture</div>
+                </div>
+                <br />
+                <span class="qq-drop-processing-selector qq-drop-processing">
+                    <span>@T("Common.FileUploader.Processing")</span>
+                    <span class="qq-drop-processing-spinner-selector qq-drop-processing-spinner"></span>
+                </span>
+                <ul class="qq-upload-list-selector qq-upload-list" style="display: none;">
+                    <li>
+                        <div class="qq-progress-bar-container-selector">
+                            <div class="qq-progress-bar-selector qq-progress-bar"></div>
+                        </div>
+                        <span class="qq-upload-spinner-selector qq-upload-spinner"></span>
+                        <span class="qq-edit-filename-icon-selector qq-edit-filename-icon"></span>
+                        <span class="qq-upload-file-selector qq-upload-file"></span>
+                        <input class="qq-edit-filename-selector qq-edit-filename" tabindex="0" type="text">
+                        <span class="qq-upload-size-selector qq-upload-size"></span>
+                        <a class="qq-upload-cancel-selector qq-upload-cancel" href="#">@T("Common.FileUploader.Cancel")</a>
+                        <a class="qq-upload-retry-selector qq-upload-retry" href="#">@T("Common.FileUploader.Retry")</a>
+                        <a class="qq-upload-delete-selector qq-upload-delete" href="#">@T("Common.FileUploader.Delete")</a>
+                        <span class="qq-upload-status-text-selector qq-upload-status-text"></span>
+                    </li>
+                </ul>
+            </div>
+        </script>
+
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $('a[id^="picture_"]').on("click",function(e){
+                    e.preventDefault();
+                    var picID = $(e.currentTarget).attr("id").split('_')[1];
+                    $(e.currentTarget).remove();
+                });
+
+                $("#@(clientId)").fineUploader({
+                    request: {
+                        endpoint: '@(Url.Content("~/Admin/Picture/AsyncUpload"))'
+                    },
+                    template: "@(clientId)-qq-template",
+                    multiple: false
+                }).on("complete", function(event, id, name, responseJSON, xhr) {
+                    if (responseJSON.success) {
+                        $("#@(clientId + "image")").append("<a href='' id='picture_" + responseJSON.pictureId.toString() + "'><img src='" + responseJSON.imageUrl + "'/></a>");
+                        $("#pictureIDs").val($("#pictureIDs").val() + "," + responseJSON.pictureId);
+                        $("#@(clientId + "remove")").show();
+                        $('#picture_' + responseJSON.pictureId.toString()).on("click",function(e){
+                            e.preventDefault();
+                            var picID = $(e.currentTarget).attr("id").split('_')[1];
+                            $('#pictureIDs').val($('#pictureIDs').val().toString().replace(picID.toString(), ""));
+                            $(e.currentTarget).remove();
+                        });
+                    }
+                });
+
+                $("#@(clientId + "remove")").click(function(e) {
+                    $("#@(clientId + "image")").html("<img src='@pictureService.GetDefaultPictureUrl()'/>");
+                    $("#@(clientId + "value") input").val(0);
+                    $(this).hide();
+                });
+            });
+        </script>

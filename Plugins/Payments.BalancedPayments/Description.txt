@@ -1,0 +1,8 @@
+﻿Group: Payment methods
+FriendlyName: Credit Cards
+SystemName: Payments.BalancedPayments
+Version: 1.00
+SupportedVersions: 3.40
+Author: Sewbie, LLC
+DisplayOrder: 1
+FileName: Nop.Plugin.Payments.BalancedPayments.dll

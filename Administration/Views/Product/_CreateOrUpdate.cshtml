@@ -1,0 +1,205 @@
+﻿@model ProductCreationModel
+@Html.ValidationSummary(false)
+@Html.HiddenFor(model => model.Id)
+<div id="product-edit" class="admin-editbox">
+    <div id="productEditContainer">
+        <table class="adminContent">
+                    <tr>
+                        <td class="adminTitle">
+                            <label for="name">product name</label>
+                        </td>
+                        <td class="adminData">
+                            @Html.EditorFor(model => model.Name)
+                            @Html.ValidationMessageFor(model => model.Name)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="adminTitle">
+                             <label for="photoview" name="photoview">photos</label>
+                        </td>
+                        <td>
+                            @Html.Partial("_CreateOrUpdate.PictureUpload", Model)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="adminTitle">
+                           <label for="FullDescription">product info</label>
+                        </td>
+                        <td class="adminData">
+                            @Html.TextAreaFor(model => model.FullDescription, new { style = "Width: 250px; Height: 150px;" })
+                            @Html.ValidationMessageFor(model => model.FullDescription)
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="adminTitle">
+                            <label for="Categories" name="Categories">categories</label>
+                        </td>
+                        <td class="adminData">
+                            Custom Category View goes here
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="adminTitle">
+                            @Html.NopLabelFor(model => model.ProductTags):
+                        </td>
+                        <td class="adminData">
+                            @Html.EditorFor(model => model.ProductTags)
+                            @Html.ValidationMessageFor(model => model.ProductTags)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="adminTitle">
+                            <label for="Quantity" name="Quantity">quantity</label>
+                        </td>
+                        <td class="adminData">
+                            @Html.EditorFor(model => model.StockQuantity)
+                            @Html.ValidationMessageFor(model => model.StockQuantity)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="adminTitle">
+                            @Html.NopLabelFor(model => model.Price):
+                        </td>
+                        <td class="adminData">
+                            $@Html.EditorFor(model => model.Price, "Currency")
+                            @Html.ValidationMessageFor(model => model.Price)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="adminTitle">
+                            @Html.NopLabelFor(model => model.AdditionalShippingCharge):
+                        </td>
+                        <td class="adminData">
+                            $@Html.EditorFor(model => model.AdditionalShippingCharge, "Currency")
+                            @Html.ValidationMessageFor(model => model.AdditionalShippingCharge)
+                        </td>
+                    </tr>
+
+                </table>
+             
+                @Html.Partial("_CreateOrUpdate.ProductAttributes", Model)
+    </div>
+    @*<div>
+        @TabSeo()
+    </div>
+    <div>
+        @TabPictures()
+    </div>
+    <div>
+        @TabCategories()
+    </div>
+    <div>
+        @TabManufacturers()
+    </div>
+    <div>
+        @TabSpecificationAttributes()
+    </div>
+    <div>
+        @TabProductAttributes()
+    </div>
+    <div>
+        @TabTierPrices()
+    </div>
+    <div>
+        @TabDiscounts()
+    </div>
+    <div>
+        @TabAcl()
+    </div>
+    <div>
+        @TabStores()
+    </div>
+    <div>
+        @TabRelatedProducts()
+    </div>
+    <div>
+        @TabCrossSells()
+    </div>
+    <div>
+        @TabAssociatedProducts()
+    </div>
+    @if (Model.Id > 0)
+    {
+        <div>
+            @TabPurchasedWithOrders()
+        </div>
+    }*@
+</div>
+
+
+@{
+    //custom tabs
+    var eventMessage = new AdminTabStripCreated(this.Html, "product-edit");
+    EngineContext.Current.Resolve<IEventPublisher>().Publish(eventMessage);
+    foreach (var eventBlock in eventMessage.BlocksToRender)
+    {
+        @eventBlock
+    }
+}
+
+@*save selected tab index*@
+<input type="hidden" id="selected-tab-index" name="selected-tab-index" value="@(GetSelectedTabIndex())">
+
+@helper TabInfo()
+{ 
+    @Html.Partial("_CreateOrUpdate.Info", Model)
+}
+@helper TabSeo()
+{
+    @Html.Partial("_CreateOrUpdate.SEO", Model)
+}
+@helper TabCategories()
+{
+    @Html.Partial("_CreateOrUpdate.Categories", Model)
+}
+@helper TabManufacturers()
+{
+    @Html.Partial("_CreateOrUpdate.Manufacturers", Model)
+}
+@helper TabPictures()
+{
+    @Html.Partial("_CreateOrUpdate.Pictures", Model)
+}
+@helper TabSpecificationAttributes()
+{
+    @Html.Partial("_CreateOrUpdate.SpecificationAttributes", Model)
+}
+@helper TabAcl()
+{
+    @Html.Partial("_CreateOrUpdate.Acl", Model)
+}
+@helper TabStores()
+{
+    @Html.Partial("_CreateOrUpdate.Stores", Model)
+}
+
+@helper TabTierPrices()
+{
+    @Html.Partial("_CreateOrUpdate.TierPrices", Model)
+}
+@helper TabProductAttributes()
+{
+    @Html.Partial("_CreateOrUpdate.ProductAttributes", Model)
+}
+@helper TabDiscounts()
+{
+    @Html.Partial("_CreateOrUpdate.Discounts", Model)
+}
+@helper TabRelatedProducts()
+{
+    @Html.Partial("_CreateOrUpdate.RelatedProducts", Model)
+}
+@helper TabCrossSells()
+{
+    @Html.Partial("_CreateOrUpdate.CrossSells", Model)
+}
+@helper TabAssociatedProducts()
+{
+    @Html.Partial("_CreateOrUpdate.AssociatedProducts", Model)
+}
+@helper TabPurchasedWithOrders()
+{
+    @Html.Partial("_CreateOrUpdate.PurchasedWithOrders", Model)
+}
+

@@ -1,0 +1,42 @@
+﻿@model FooterModel
+@using Nop.Core
+@using Nop.Core.Domain.Tax
+@using Nop.Core.Infrastructure
+@using Nop.Web.Models.Common;
+
+<div class="col-xs-12">
+    <div class="sewbiefooter">
+        <div id="footersearch" class="col-xs-3">
+            <h5>SEARCH</h5>
+            <div class="search-box">
+            @Html.Action("SearchBox", "Catalog")
+            </div>
+        </div>
+        <div class="col-xs-3">
+            <h5>GENERAL INFO</h5>
+            <ul class="footerlinks">
+            <li><a href="@Url.RouteUrl("Topic", new {SeName = Html.GetTopicSeName("aboutus") })">@T("AboutUs")</a></li>
+            <li><a href="@Url.RouteUrl("Topic", new {SeName = Html.GetTopicSeName("privacyinfo") })">@T("PrivacyNotice")</a></li>
+            <li><a href="@Url.RouteUrl("Topic", new {SeName = Html.GetTopicSeName("conditionsofuse") })">@T("ConditionsOfUse")</a></li>
+            <li><a href="@Url.RouteUrl("Topic", new {SeName = Html.GetTopicSeName("shippinginfo") })">@T("ShippingReturns")</a></li>
+            </ul>
+        </div>
+        <div class="col-xs-3">
+            <h5>SELL WITH US</h5>
+            <ul class="footerlinks">
+            <li><a href="#">Create Your Store</a></li>
+            <li><a href="#">Apply To Sell</a></li>
+            </ul>
+        </div>
+        <div class="col-xs-3">
+            <h5>CONTACT</h5>
+            <ul class="footerlinks">
+            <li><a href="#">Email Us</a></li>
+            <li><a href="#">Facebook</a></li>
+            <li><a href="#">Instagram</a></li>
+            <li><a href="#">Twitter</a></li>
+            </ul>
+        </div>
+    </div>
+   
+</div>
